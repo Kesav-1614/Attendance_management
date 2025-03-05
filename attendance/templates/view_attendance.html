@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Attendance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            width: 90%;
+            margin: auto;
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .check-in {
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+
+        .check-out {
+            background-color: #ff4c4c;
+            color: white;
+            border-radius: 5px;
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+
+        .worked-hours {
+            font-weight: bold;
+            color: #ff9f43;
+        }
+
+        .btn {
+            padding: 12px 15px;
+            color: white;
+            background: #ff7eb3;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            flex: 1;
+            margin: 0 5px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: #ff4e8b; /* Same hover effect */
+        }
+
+
+        @media (max-width: 768px) {
+            table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Daily Attendance Records</h2>
+
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Employee</th>
+                <th>Date</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Worked Hours</th>
+            </tr>
+        
+            {% for record in attendance_records %}
+                {% if forloop.first or record.check_in.date != previous_date %}
+                    {% comment %} <!-- Display Date Header When Date Changes -->
+                    <tr>
+                        <td colspan="5" >
+                            {{ record.check_in.date }}
+                        </td>
+                    </tr> {% endcomment %}
+                {% endif %}
+                
+                <tr>
+                    <td>{{ record.user.username }}</td>
+                    <td>{{ record.check_in.date }}</td>
+                    <td>{{ record.check_in|time }}</td>
+                    <td>{{ record.check_out|time }}</td>
+                    <td>{{ record.working_hours }}</td>
+                </tr>
+                
+        
+                {% with record.check_in.date as previous_date %}{% endwith %}
+            {% endfor %}
+        </table>
+        
+    </div>
+    <br>
+    <div class="buttons">
+        <a href="{% url 'admin_dashboard' %}" class="btn"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="{% url 'logout' %}" class="btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+</body>
+</html>

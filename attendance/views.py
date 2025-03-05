@@ -41,25 +41,56 @@ def register(request):
     return render(request, 'register.html')
 
 # Login view
+# def login_view(request):
+#     if request.method == 'POST':
+#         username = request.POST['username']
+#         password = request.POST['password']
+        
+#         # Authenticate user
+#         try:
+#             user = EmployeeDetails.objects.get(username=username)
+#             if user.password == password:  # Ensure you're handling password properly (not hashed here)
+#                 # Manually create the session
+#                 request.session['user_id'] = user.id  # Store user ID in session
+#                 request.session['username'] = user.username  # Optionally, store username
+                
+#                 return redirect('dashboard')  # Redirect to dashboard
+#             else:
+#                 messages.error(request, 'Invalid username or password')
+#         except EmployeeDetails.DoesNotExist:
+#             messages.error(request, 'Invalid username or password')
+    
+#     return render(request, 'login.html')
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         
-        # Authenticate user
         try:
             user = EmployeeDetails.objects.get(username=username)
-            if user.password == password:  # Ensure you're handling password properly (not hashed here)
-                # Manually create the session
-                request.session['user_id'] = user.id  # Store user ID in session
-                request.session['username'] = user.username  # Optionally, store username
+
+            if user.password == password:  # Ensure secure password handling
+                # Store session data
+                request.session['user_id'] = user.id
+                request.session['username'] = user.username
+                request.session['designation'] = user.designation  # Store role
+
+                # ✅ Fix: Ensure `designation` is not None
+                designation = user.designation.lower() if user.designation else ""
+
+                # Redirect based on designation
+                if designation == "admin":
+                    return redirect('admin_dashboard')  # Admin Panel
+                else:
+                    return redirect('dashboard')  # Employee Dashboard
                 
-                return redirect('dashboard')  # Redirect to dashboard
             else:
                 messages.error(request, 'Invalid username or password')
+        
         except EmployeeDetails.DoesNotExist:
             messages.error(request, 'Invalid username or password')
-    
+
     return render(request, 'login.html')
 
 def dashboard(request):
@@ -122,22 +153,23 @@ def dashboard(request):
     }
 
     return render(request, 'dashboard.html', context)
-
 def check_in(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')  # Redirect if session is missing
 
     try:
-        user = EmployeeDetails.objects.get(id=user_id)  # ✅ Use EmployeeDetails, not User
+        user = EmployeeDetails.objects.get(id=user_id)  # ✅ Get EmployeeDetails
     except EmployeeDetails.DoesNotExist:
         return redirect('login')
 
     today = now().date()
     attendance, created = Attendance.objects.get_or_create(
-        user=user, date=today, defaults={'check_in': now()}
+        user=user, date=today,
+        defaults={'check_in': now()}
     )
 
+    # If record exists but check-in is missing, update it
     if not created and not attendance.check_in:
         attendance.check_in = now()
         attendance.save()
@@ -150,7 +182,7 @@ def check_out(request):
         return redirect('login')
 
     try:
-        user = EmployeeDetails.objects.get(id=user_id)  # ✅ Fix reference
+        user = EmployeeDetails.objects.get(id=user_id)
     except EmployeeDetails.DoesNotExist:
         return redirect('login')
 
@@ -159,9 +191,9 @@ def check_out(request):
         attendance = Attendance.objects.get(user=user, date=today)
         if not attendance.check_out:
             attendance.check_out = now()
-            attendance.save()
+            attendance.calculate_working_hours()  # ✅ Auto-update working hours
     except Attendance.DoesNotExist:
-        pass  
+        pass  # No check-in recorded
 
     return redirect('dashboard')
 
@@ -223,6 +255,28 @@ def profile_view(request):
         return redirect('profile')  # Refresh profile page
 
     return render(request, 'profile.html', {'user': user, 'profile': profile})
+
+def admin_profile_view(request):
+    user_id = request.session.get('user_id')  # Get user ID from session
+    if not user_id:
+        return redirect('login')  # Redirect to login if not authenticated
+
+    try:
+        user = EmployeeDetails.objects.get(id=user_id)  # Fetch user details
+        profile, created = Profile.objects.get_or_create(employee=user)  # Ensure profile exists
+    except EmployeeDetails.DoesNotExist:
+        return redirect('login')
+
+    if request.method == 'POST':
+        # Update profile picture if uploaded
+        if 'profile_image' in request.FILES:
+            profile.profile_picture = request.FILES['profile_image']
+            profile.save()  # Save only if a new profile picture is uploaded
+
+        return redirect('profile')  # Refresh profile page
+
+    return render(request, 'admin_profile.html', {'user': user, 'profile': profile})
+
 def generate_qr(request):
     # Generate a unique registration URL
     unique_id = uuid.uuid4()
@@ -244,3 +298,81 @@ def generate_qr(request):
 
     return render(request, "qr_display.html", {"qr_url": qr_url})
 
+
+# Admin
+def admin_dashboard(request):
+    if 'user_id' not in request.session:
+        return redirect('login')  # Redirect if not logged in
+
+    try:
+        admin = EmployeeDetails.objects.get(id=request.session['user_id'])
+    except EmployeeDetails.DoesNotExist:
+        return redirect('login')
+
+    if admin.designation.lower() != "admin":
+        return redirect('dashboard')  # Redirect non-admin users
+
+    employees = EmployeeDetails.objects.all()
+    attendance_records = Attendance.objects.all().order_by('-date')
+    pending_leaves = LeaveApplication.objects.filter(status="Pending")
+
+    # Fix working hours calculation
+    for record in attendance_records:
+        if record.check_in and record.check_out:
+            record.working_hours = record.check_out - record.check_in  # ✅ Correct timedelta calculation
+        else:
+            record.working_hours = None  # No check-out yet
+
+    context = {
+        "admin": admin,
+        "employees": employees,
+        "attendance_records": attendance_records,
+        "pending_leaves": pending_leaves,
+    }
+
+    return render(request, "admin_dashboard.html", context)
+
+
+def leave_management(request):
+    leave_requests = LeaveApplication.objects.filter(status="Pending")
+    return render(request, 'leave_management.html', {'leave_requests': leave_requests})
+
+def approve_leave(request, leave_id):
+    leave = get_object_or_404(LeaveApplication, id=leave_id)
+    leave.status = "Approved"
+    leave.save()
+    messages.success(request, f"Leave request for {leave.user.username} approved.")
+    return redirect('leave_management')
+
+def reject_leave(request, leave_id):
+    leave = get_object_or_404(LeaveApplication, id=leave_id)
+    leave.status = "Rejected"
+    leave.save()
+    messages.error(request, f"Leave request for {leave.user.username} rejected.")
+    return redirect('leave_management')
+
+def manage_employees(request):
+    employees = EmployeeDetails.objects.all()  # Fetch all employees
+    
+    # Fetch profile pictures for employees
+    employee_data = []
+    for emp in employees:
+        profile = Profile.objects.filter(employee=emp).first()
+        profile_picture_url = profile.profile_picture.url if profile and profile.profile_picture else '/static/images/default_profile.jpg'
+        
+        employee_data.append({
+            'id': emp.id,
+            'name': emp.username,
+            'designation': emp.designation,
+            'email': emp.email,
+            'profile_picture': profile_picture_url
+        })
+
+    context = {'employees': employee_data}
+    return render(request, 'manage_employees.html', context)
+
+# ✅ View Attendance - Show attendance for all employees
+def view_attendance(request):
+    attendance_records = Attendance.objects.select_related('user').order_by('check_in')  # Order by check-in time
+
+    return render(request, 'view_attendance.html', {'attendance_records': attendance_records})
