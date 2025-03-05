@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            overflow: hidden;
+        }
+
+        .register-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.2);
+            text-align: center;
+            width: 320px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .register-container h2 {
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 22px;
+            color: #ff7eb3;
+        }
+
+        input[type="text"], input[type="email"], input[type="password"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 14px;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        input:focus {
+            border-color: #ff7eb3;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 8px;
+            font-weight: bold;
+            background: #ff7eb3;
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 126, 179, 0.5);
+        }
+
+        .btn:hover {
+            background: #ff4c8d;
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2>Create Account</h2>
+        <form method="POST" id="registrationForm">
+            {% csrf_token %}
+            <input type="text" name="username" id="username" placeholder="Username" required>
+            <input type="email" name="email" id="email" placeholder="Email" required>
+            <input type="password" name="password" id="password" placeholder="Password" required>
+            <input type="text" name="employee_id" id="employee_id" placeholder="Employee ID" required>
+            <input type="date" name="date_of_birth" id="date_of_birth" required>
+            <input type="text" name="phone_number" id="phone_number" placeholder="Phone Number">
+            <input type="text" name="address" id="address" placeholder="Address">
+            <input type="text" name="designation" id="designation" placeholder="Designation">
+            <button type="submit" class="btn">Register</button>
+        </form>
+    </div>
+</body>
+</html>

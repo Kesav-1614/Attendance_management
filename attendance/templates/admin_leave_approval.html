@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Leave Approval</title>
+    <style>
+        body { font-family: 'Poppins', sans-serif; text-align: center; background: #f4f4f4; }
+        table { width: 80%; margin: 20px auto; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+        th { background: #667eea; color: white; }
+        .btn { padding: 8px 12px; border: none; cursor: pointer; }
+        .approve { background: green; color: white; }
+        .reject { background: red; color: white; }
+    </style>
+</head>
+<body>
+    <h2>Admin - Leave Approval</h2>
+    <table>
+        <tr>
+            <th>Employee</th>
+            <th>Leave Type</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Reason</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for leave in leave_requests %}
+        <tr>
+            <td>{{ leave.user.username }}</td>
+            <td>{{ leave.leave_type }}</td>
+            <td>{{ leave.start_date }}</td>
+            <td>{{ leave.end_date }}</td>
+            <td>{{ leave.reason }}</td>
+            <td>
+                {% with attendance=leave.user.attendance_set.last %}
+                    {{ attendance.check_in|default:"N/A" }}
+                {% endwith %}
+            </td>
+            <td>
+                {% with attendance=leave.user.attendance_set.last %}
+                    {{ attendance.check_out|default:"N/A" }}
+                {% endwith %}
+            </td>
+            <td>{{ leave.status }}</td>
+            <td>
+                {% if leave.status == "Pending" %}
+                    <a href="{% url 'approve_leave' leave.id %}" class="btn approve">Approve</a>
+                    <a href="{% url 'reject_leave' leave.id %}" class="btn reject">Reject</a>
+                {% else %}
+                    <span>{{ leave.status }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

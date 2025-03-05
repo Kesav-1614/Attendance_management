@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Registration</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+        }
+
+        body { 
+            display: flex; height: 100vh; 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center;
+            flex-direction: column;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+            max-width: 500px;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #ff7eb3;
+        }
+
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            background: white;
+            padding: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            h2 { font-size: 18px; }
+            .btn { font-size: 14px; padding: 8px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Scan the QR Code to Register</h2>
+        <div class="qr-container">
+            <img src="{{ qr_url }}" alt="Registration QR Code">
+        </div>
+        <a href="/" class="btn">Go Back</a>
+    </div>
+</body>
+</html>

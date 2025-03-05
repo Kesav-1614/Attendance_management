@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply Leave</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* Glassmorphism Effect */
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0;
+        }
+        select {
+            color: #000; /* Change text color to black for visibility */
+            font-weight: bold; /* Make the text bold */
+        }
+        
+        /* Ensure options are also visible */
+        select option {
+            color: #000;
+            background: #fff;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: fadeInUp 1s;
+        }
+        
+        h2 {
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #fff;
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: left;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            color: #fff;
+            outline: none;
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        button {
+            margin-top: 15px;
+            background: #ff7eb3;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s ease-in-out;
+        }
+        
+        button:hover {
+            background: #ff5c8a;
+            transform: scale(1.05);
+        }
+
+        .error {
+            color: #ff4444;
+            font-weight: bold;
+            margin-top: 10px;
+            animation: shake 0.5s;
+        }
+        .btn {
+            padding: 12px 15px;
+            color: white;
+            background: #ff7eb3;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            flex: 1;
+            margin: 0 5px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: #ff4e8b; /* Same hover effect */
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container animate__animated animate__fadeInUp">
+    <h2>Apply for Leave</h2>
+
+    <p class="error" id="error-message" style="display:none;"></p>
+
+    <form id="leaveForm" method="post">
+        {% csrf_token %}
+
+        <label for="leave_type">Leave Type:</label>
+        <select name="leave_type" id="leave_type">
+            <option value="">Select Leave Type</option>
+            <option value="Sick Leave">Sick Leave</option>
+            <option value="Casual Leave">Casual Leave</option>
+            <option value="Annual Leave">Annual Leave</option>
+            <option value="Maternity Leave">Maternity Leave</option>
+        </select>
+
+        <label for="from_date">Start Date:</label>
+        <input type="date" name="from_date" id="from_date">
+
+        <label for="to_date">End Date:</label>
+        <input type="date" name="to_date" id="to_date">
+
+        <label for="reason">Reason:</label>
+        <textarea name="reason" id="reason" rows="4" placeholder="Enter reason"></textarea>
+
+        <button type="submit">Submit Leave Request</button>
+    </form><br><br>
+    <div class="buttons">
+        <a href="{% url 'dashboard' %}" class="btn"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="{% url 'logout' %}" class="btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+</div>
+
+<script>
+    document.getElementById("leaveForm").addEventListener("submit", function(event) {
+        let leaveType = document.getElementById("leave_type").value;
+        let fromDate = document.getElementById("from_date").value;
+        let toDate = document.getElementById("to_date").value;
+        let reason = document.getElementById("reason").value;
+        let errorMessage = document.getElementById("error-message");
+
+        if (!leaveType || !fromDate || !toDate || !reason) {
+            errorMessage.textContent = "⚠️ All fields are required!";
+            errorMessage.style.display = "block";
+            event.preventDefault();
+        } else {
+            errorMessage.style.display = "none";
+        }
+    });
+</script>
+
+</body>
+</html>
