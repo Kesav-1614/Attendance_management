@@ -60,7 +60,7 @@ def login_view(request):
         except EmployeeDetails.DoesNotExist:
             messages.error(request, 'Invalid username or password')
     
-    return render(request, 'login.html')
+    return render(request, 'index.html')
 
 def dashboard(request):
     if 'user_id' not in request.session:
