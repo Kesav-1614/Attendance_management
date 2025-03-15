@@ -2,13 +2,16 @@ from datetime import timedelta, datetime
 import calendar
 from django.shortcuts import render, get_object_or_404,redirect
 from django.contrib import messages
-from .models import EmployeeDetails,Attendance,LeaveApplication,Profile
+from .models import EmployeeDetails,Attendance,LeaveApplication,Profile,Role
 from django.contrib.auth import logout
 from django.utils.timezone import now
 import qrcode
 import uuid
 import os
+import pandas as pd
+from django.http import HttpResponse
 from django.conf import settings
+import csv
 
 
 
@@ -206,6 +209,7 @@ def user_logout(request):
 def apply_leave(request):
     if request.method == "POST":
         leave_type = request.POST.get("leave_type")
+        role_types = request.POST.getlist("role_type")  # ✅ Get multiple roles
         start_date = request.POST.get("from_date")
         end_date = request.POST.get("to_date")
         reason = request.POST.get("reason")
@@ -214,47 +218,55 @@ def apply_leave(request):
             messages.error(request, "⚠️ All fields are required!")
             return redirect("apply_leave")
 
-        # ✅ Get EmployeeDetails instance for the logged-in user
         try:
-            employee = EmployeeDetails.objects.get(username=request.session.get("username"))  # Fetch using session
+            employee = EmployeeDetails.objects.get(username=request.session.get("username"))
         except EmployeeDetails.DoesNotExist:
             messages.error(request, "Employee details not found. Please contact admin.")
             return redirect("apply_leave")
 
+        # ✅ Convert list to comma-separated string
+        selected_roles = ', '.join(Role.objects.filter(id__in=role_types).values_list('name', flat=True))
+
         # ✅ Save leave application
         LeaveApplication.objects.create(
             user=employee,
+            username=employee.username,
             leave_type=leave_type,
+            role_type=selected_roles,
             start_date=start_date,
             end_date=end_date,
             reason=reason
-        ).save()
+        )
 
         messages.success(request, "✅ Leave request submitted successfully!")
         return redirect("apply_leave")
 
-    return render(request, "apply_leave.html")
+    roles = Role.objects.all()
+    return render(request, "apply_leave.html", {"roles": roles})
+
 
 def profile_view(request):
-    user_id = request.session.get('user_id')  # Get user ID from session
+    user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('login')  # Redirect to login if not authenticated
+        return redirect('login')
 
     try:
-        user = EmployeeDetails.objects.get(id=user_id)  # Fetch user details
-        profile, created = Profile.objects.get_or_create(employee=user)  # Ensure profile exists
+        user = EmployeeDetails.objects.get(id=user_id)
+        profile, created = Profile.objects.get_or_create(employee=user)
     except EmployeeDetails.DoesNotExist:
         return redirect('login')
 
-    if request.method == 'POST':
-        # Update profile picture if uploaded
-        if 'profile_image' in request.FILES:
-            profile.profile_picture = request.FILES['profile_image']
-            profile.save()  # Save only if a new profile picture is uploaded
+    if request.method == 'POST' and request.FILES.get('profile_image'):
+        profile.profile_picture = request.FILES['profile_image']
+        profile.save()  # Save profile with new image
 
-        return redirect('profile')  # Refresh profile page
+        return redirect('profile')
 
-    return render(request, 'profile.html', {'user': user, 'profile': profile})
+    context = {
+        'user': user,
+        'profile': profile,
+    }
+    return render(request, 'profile.html', context)
 
 def admin_profile_view(request):
     user_id = request.session.get('user_id')  # Get user ID from session
@@ -297,7 +309,6 @@ def generate_qr(request):
     qr_url = f"{settings.MEDIA_URL}qr_codes/{unique_id}.png"
 
     return render(request, "qr_display.html", {"qr_url": qr_url})
-
 
 # Admin
 def admin_dashboard(request):
@@ -373,6 +384,58 @@ def manage_employees(request):
 
 # ✅ View Attendance - Show attendance for all employees
 def view_attendance(request):
-    attendance_records = Attendance.objects.select_related('user').order_by('check_in')  # Order by check-in time
-
+    attendance_records = Attendance.objects.select_related('user').order_by('check_in')
+    
+    for record in attendance_records:
+        if record.check_in and record.check_out:
+            duration = record.check_out - record.check_in
+            # Format duration to HH:MM:SS format
+            record.working_hours = str(timedelta(seconds=duration.total_seconds()))
+        else:
+            record.working_hours = 'N/A'  # If check-in or check-out is missing
+    
     return render(request, 'view_attendance.html', {'attendance_records': attendance_records})
+
+def select_employee(request):
+    employees = EmployeeDetails.objects.all()  # Fetch all employees
+    return render(request, 'select_employee.html', {'employees': employees})
+
+def download_employee_attendance(request, employee_id):
+    employee = get_object_or_404(EmployeeDetails, employee_id=employee_id)
+    attendances = Attendance.objects.filter(user=employee)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{employee.username}_attendance.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Date', 'Check-in', 'Check-out', 'Working Hours'])
+
+    for attendance in attendances:
+        check_in = attendance.check_in.strftime('%Y-%m-%d %H:%M:%S') if attendance.check_in else 'N/A'
+        check_out = attendance.check_out.strftime('%Y-%m-%d %H:%M:%S') if attendance.check_out else 'N/A'
+
+        # Calculate working hours dynamically
+        if attendance.check_in and attendance.check_out:
+            time_diff = attendance.check_out - attendance.check_in
+            total_seconds = time_diff.total_seconds()
+            hours = int(total_seconds // 3600)
+            minutes = int((total_seconds % 3600) // 60)
+            working_hours = f"{hours}h {minutes}m"
+        else:
+            working_hours = 'N/A'
+
+        writer.writerow([attendance.date.strftime('%Y-%m-%d'), check_in, check_out, working_hours])
+
+    return response
+
+def leave_status(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login_view')
+
+    leaves = LeaveApplication.objects.filter(user_id=user_id).order_by('-start_date')
+
+    context = {
+        'leaves': leaves
+    }
+    return render(request, 'leave_status.html', context)

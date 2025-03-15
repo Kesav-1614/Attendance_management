@@ -284,6 +284,9 @@
             <h2>Dashboard</h2>
             <a href="{% url 'profile' %}"><i class="fas fa-user"></i> Profile</a>
             <a href="{% url 'apply_leave' %}"><i class="fas fa-calendar-alt"></i> Apply for Leave</a>
+            <a href="{% url 'leave_status' %}">
+                <i class="fas fa-calendar-check"></i> Leave Status
+            </a>
             <form action="{% url 'check_in' %}" method="POST" class="btn-container">
                 {% csrf_token %}
                 <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i> Check In</button>
@@ -300,7 +303,7 @@
 
         <!-- Main Content -->
         <div class="content">
-            <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-img">
+            
                <div class="calendar-container">
     <h3 style="text-align:center;">Attendance Calendar</h3>
     <br>

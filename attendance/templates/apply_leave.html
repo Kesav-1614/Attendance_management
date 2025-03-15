@@ -135,52 +135,111 @@
 
     <p class="error" id="error-message" style="display:none;"></p>
 
-    <form id="leaveForm" method="post">
+    <form method="POST" id="leaveForm">
         {% csrf_token %}
-
+        
         <label for="leave_type">Leave Type:</label>
-        <select name="leave_type" id="leave_type">
-            <option value="">Select Leave Type</option>
+        <select name="leave_type" id="leave_type" required>
             <option value="Sick Leave">Sick Leave</option>
             <option value="Casual Leave">Casual Leave</option>
             <option value="Annual Leave">Annual Leave</option>
-            <option value="Maternity Leave">Maternity Leave</option>
+            <option value="Unpaid Leave">Unpaid Leave</option>
         </select>
-
+    
         <label for="from_date">Start Date:</label>
-        <input type="date" name="from_date" id="from_date">
-
+        <input type="date" name="from_date" id="from_date" required onkeydown="return false">
+    
         <label for="to_date">End Date:</label>
-        <input type="date" name="to_date" id="to_date">
-
+        <input type="date" name="to_date" id="to_date" required onkeydown="return false">
+    
         <label for="reason">Reason:</label>
-        <textarea name="reason" id="reason" rows="4" placeholder="Enter reason"></textarea>
+        <textarea name="reason" id="reason" maxlength="100" required></textarea>
+        <p id="word-count" style="color: #ff4444; font-size: 14px; display: none;"></p>
+    
+        <!-- ✅ Multi-select for Role Type -->
+        <label>Select Roles:</label>
+        <div>
+            {% for role in roles %}
+                <label>
+                    <input type="checkbox" name="role_type" value="{{ role.id }}"> {{ role.name }}
+                </label><br>
+            {% endfor %}
+        </div>
+        
+        <button type="submit">Submit Leave Request</button><br><br><br>
 
-        <button type="submit">Submit Leave Request</button>
-    </form><br><br>
-    <div class="buttons">
-        <a href="{% url 'dashboard' %}" class="btn"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="{% url 'admin_dashboard' %}" class="btn"><i class="fas fa-home"></i> Dashboard</a>
         <a href="{% url 'logout' %}" class="btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
-</div>
-
-<script>
-    document.getElementById("leaveForm").addEventListener("submit", function(event) {
-        let leaveType = document.getElementById("leave_type").value;
-        let fromDate = document.getElementById("from_date").value;
-        let toDate = document.getElementById("to_date").value;
-        let reason = document.getElementById("reason").value;
-        let errorMessage = document.getElementById("error-message");
-
-        if (!leaveType || !fromDate || !toDate || !reason) {
-            errorMessage.textContent = "⚠️ All fields are required!";
-            errorMessage.style.display = "block";
-            event.preventDefault();
-        } else {
+    </form>
+    
+    <script>
+        window.onload = function() {
+            // ✅ Disable past dates for start and end dates
+            let today = new Date().toISOString().split('T')[0];
+            document.getElementById("from_date").setAttribute("min", today);
+            document.getElementById("to_date").setAttribute("min", today);
+        };
+    
+        // ✅ Form validation and word/character count
+        document.getElementById("leaveForm").addEventListener("submit", function(event) {
+            let leaveType = document.getElementById("leave_type").value;
+            let fromDate = document.getElementById("from_date").value;
+            let toDate = document.getElementById("to_date").value;
+            let reason = document.getElementById("reason").value;
+            let errorMessage = document.getElementById("error-message");
+            let wordCountMessage = document.getElementById("word-count");
+    
+            // ✅ Validate all fields
+            if (!leaveType || !fromDate || !toDate || !reason) {
+                errorMessage.textContent = "⚠️ All fields are required!";
+                errorMessage.style.display = "block";
+                event.preventDefault();
+                return;
+            }
+    
+            // ✅ Ensure from date is not greater than to date
+            if (new Date(fromDate) > new Date(toDate)) {
+                errorMessage.textContent = "⚠️ Start date cannot be after end date!";
+                errorMessage.style.display = "block";
+                event.preventDefault();
+                return;
+            }
+    
+            // ✅ Validate word count in reason (max 10 words)
+            let wordCount = reason.trim().split(/\s+/).length;
+            if (wordCount > 20) {
+                wordCountMessage.textContent = `⚠️ Reason cannot exceed 20 words! (Current: ${wordCount})`;
+                wordCountMessage.style.display = "block";
+                event.preventDefault();
+                return;
+            }
+    
+            // ✅ Validate character count in reason (max 50 characters)
+            if (reason.length > 100) {
+                errorMessage.textContent = "⚠️ Reason should not exceed 100 characters!";
+                errorMessage.style.display = "block";
+                event.preventDefault();
+                return;
+            }
+    
+            // ✅ Hide error messages if valid
             errorMessage.style.display = "none";
-        }
-    });
-</script>
-
-</body>
-</html>
+            wordCountMessage.style.display = "none";
+        });
+    
+        // ✅ Live word count display for reason field
+        document.getElementById("reason").addEventListener("input", function() {
+            let reason = this.value.trim();
+            let wordCount = reason.split(/\s+/).filter(word => word).length;
+            let wordCountMessage = document.getElementById("word-count");
+    
+            if (wordCount > 10) {
+                wordCountMessage.textContent = `⚠️ Reason cannot exceed 10 words! (Current: ${wordCount})`;
+                wordCountMessage.style.display = "block";
+            } else {
+                wordCountMessage.style.display = "none";
+            }
+        });
+    </script>
+    

@@ -126,7 +126,8 @@
 
 <div class="container">
     <h2>Profile</h2>
-    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-img">
+    <img id="profilePreview" src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-img">
+
     <div class="upload-container">
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}

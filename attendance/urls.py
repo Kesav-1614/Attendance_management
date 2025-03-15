@@ -14,10 +14,13 @@ urlpatterns = [
     path('admin_profile/', views.admin_profile_view, name='admin_profile'),
     path('admin-dashboard/', views.admin_dashboard, name="admin_dashboard"),
     path('leave-management/', views.leave_management, name='leave_management'),
+    path('leave-status/', views.leave_status, name='leave_status'),
     path('approve-leave/<int:leave_id>/',views. approve_leave, name='approve_leave'),
     path('reject-leave/<int:leave_id>/',views. reject_leave, name='reject_leave'),
     path('manage-employees/', views.manage_employees, name='manage_employees'),
     path('view-attendance/', views.view_attendance, name='view_attendance'),
+    path('select-employee/', views.select_employee, name='select_employee'),
+    path('download-attendance/<str:employee_id>/',views. download_employee_attendance, name='download_employee_attendance'),
     
 ]
 

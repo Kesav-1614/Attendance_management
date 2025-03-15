@@ -39,7 +39,13 @@ class Attendance(models.Model):
             hours = self.working_hours // 3600
             minutes = (self.working_hours % 3600) // 60
             return f"{self.username} - {self.date} ({hours}h {minutes}m)"
-        return f"{self.username} - {self.date} (N/A)"
+        return f"{self.username} - {self.date} (-)"
+    
+class Role(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class LeaveApplication(models.Model):
     LEAVE_TYPES = [
@@ -55,9 +61,10 @@ class LeaveApplication(models.Model):
         ('Rejected', 'Rejected'),
     ]
 
-    user = models.ForeignKey("EmployeeDetails", on_delete=models.CASCADE)  # Referencing EmployeeDetails
+    user = models.ForeignKey("EmployeeDetails", on_delete=models.CASCADE)
     username = models.CharField(max_length=150)
     leave_type = models.CharField(max_length=50, choices=LEAVE_TYPES)
+    role_type = models.TextField()  # ✅ Change to TextField to store multiple roles as CSV
     start_date = models.DateField()
     end_date = models.DateField()
     reason = models.TextField()

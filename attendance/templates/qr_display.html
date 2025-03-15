@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -82,9 +84,9 @@
     <div class="container">
         <h2>Scan the QR Code to Register</h2>
         <div class="qr-container">
-            <img src="{{ qr_url }}" alt="Registration QR Code">
+            <img src="{% static 'images/register_qr.png' %}" alt="Register QR Code" />
         </div>
-        <a href="/" class="btn">Go Back</a>
+        
     </div>
 </body>
 </html>
