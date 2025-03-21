@@ -138,47 +138,46 @@
             overflow-x: auto;
             padding: 20px;
         }
-    
-        table {
-            width: 1000px;
-            border-collapse: collapse;
-            font-size: 14px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-left:-30px;
-        }
-    
-        th, td {
-            padding: 10px;
+        h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
             text-align: center;
-            border: 1px solid #ddd;
+          }
+        table {
+            width: 1200px;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #fff;
+          }
+        
+          th, td {
+            padding: 16px;
+            text-align: left;
+          }
+        
+          th {
+            background-color:rgb(102, 71, 181);
+            color: #ffffff;
             font-weight: bold;
-        }
-    
-        th {
-            background-color: #444;
-            color: white;
-        }
-    
-        /* Default Absent (Red) */
-        .absent {
-            background-color:rgb(237, 97, 97);
-            color: white;
-        }
-    
-        /* Present (Green) */
-        .present {
-            background-color: #28a745;
-            color: white;
-        }
-    
-        /* Sunday (Orange) */
-        .sunday {
-            background-color: #ff9f43;
-            color: white;
-        }
-    
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #0056b3;
+          }
+        
+          td {
+            color: #555;
+            font-size: 16px;
+            border-bottom: 1px solid #eee;
+          }
+        
+      
+          /* Smooth transition */
+          td {
+              transition: background-color 0.3s ease-in-out;
+          }
         /* Smooth transition */
         td {
             transition: background-color 0.3s ease-in-out;
@@ -295,7 +294,9 @@
                 {% csrf_token %}
                 <button type="submit" class="btn"><i class="fas fa-sign-out-alt"></i> Check Out</button>
             </form>
-            
+            <button onclick="location.href='{% url 'break_in' %}'" class="btn btn-warning">Break In</button>
+            <button onclick="location.href='{% url 'break_out' %}'" class="btn btn-success">Break Out</button>  
+
 
             <a href="{% url 'logout' %}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
             
@@ -314,18 +315,26 @@
                 <th>Day</th>
                 <th>Status</th>
                 <th>Hours</th>
+                <th>Total Break Time</th>
+                <th> Break Duration </th>
             </tr>
         </thead>
         <tbody>
-            {% for entry in calendar_data %}
-            <tr class="{% if entry.day == 'Sunday' %}sunday{% elif entry.status == 'P' %}present{% else %}absent{% endif %}">
-                <td>{{ entry.date }}</td>
-                <td>{{ entry.day }}</td>
-                <td>{{ entry.status }}</td>
-                <td>{{ entry.hours }}</td>
+            {% for day in calendar_data %}
+            <tr>
+                <td>{{ day.date }}</td>
+                <td>{{ day.day }}</td>
+                <td>{{ day.status }}</td>
+                <td>{{ day.hours }}</td>
+                <td>{{ day.total_break_time }}</td>
+                <td>
+                    {% for break in day.break_details %}
+                        {{ break.break_in }} - {{ break.break_out }} ({{ break.break_duration }})<br>
+                    {% endfor %}
+                </td>
             </tr>
             {% endfor %}
-        </tbody>
+            
     </table>
 </div>
                     </div>

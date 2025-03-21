@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>March Payslip - Kesav Technologies Pvt. Ltd.</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+            color: #2c3e50;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 14px;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+            color: #34495e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 40%;
+        }
+        td {
+            background-color: #fafafa;
+        }
+        .total {
+            font-weight: bold;
+            background-color: #f4f4f4;
+            color: #2c3e50;
+        }
+        .seal {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .signature {
+            margin-top: 30px;
+            display: inline-block;
+            border-top: 1px solid #7f8c8d;
+            padding-top: 5px;
+            width: 200px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .stamp {
+            display: inline-block;
+            margin-left: 30px;
+            width: 100px;
+            height: 100px;
+            border: 2px dashed #7f8c8d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>March Payslip - Kesav Technologies Pvt. Ltd.</h2>
+
+    <table>
+        <tr>
+            <th>Employee</th>
+            <td>{{ payroll.employee.username }}</td>
+        </tr>
+        <tr>
+            <th>Pay Period</th>
+            <td>{{ payroll.pay_period_start }} to {{ payroll.pay_period_end }}</td>
+        </tr>
+        <tr>
+            <th>Payment Date</th>
+            <td>{{ payroll.payment_date }}</td>
+        </tr>
+        <tr>
+            <th>Basic Salary</th>
+            <td>Rs&nbsp;&nbsp;{{ payroll.basic_salary|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <th>Deduction</th>
+            <td>Rs&nbsp;&nbsp;{{ payroll.deduction|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <th class="total">Total Amount</th>
+            <td class="total">Rs&nbsp;&nbsp;{{ payroll.total_amount|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <th>Address</th>
+            <td>13 E, Anbu Nagar, Chennai, Tamil Nadu, 600001</td>
+        </tr>
+        <tr>
+            <th>Contact</th>
+            <td>+91 9876543210 | info@kesavtech.com</td>
+        </tr>
+        <tr>
+            <th>Seal & Signature</th>
+            <td>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div class="signature">
+                        Authorized Signature  
+                        <br> HR Manager
+                    </div>
+                   
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="seal">
+        Thank you for your service! If you have any questions, please contact HR.
+    </div>
+</div>
+
+</body>
+</html>

@@ -21,6 +21,16 @@ urlpatterns = [
     path('view-attendance/', views.view_attendance, name='view_attendance'),
     path('select-employee/', views.select_employee, name='select_employee'),
     path('download-attendance/<str:employee_id>/',views. download_employee_attendance, name='download_employee_attendance'),
-    
+    path('payroll/generate/', views.generate_payslip, name='generate_payroll'),
+    path('payroll/list/',views. payroll_list, name='payroll_list'),
+    path('payroll/download-csv/', views.download_payroll_csv, name='download_payroll_csv'),
+      path('payroll/fetch-details/<int:employee_id>/', views.fetch_employee_details, name='fetch_employee_details'),
+      path('payroll/payslip/<int:payroll_id>/',views. generate_payslip, name='generate_payslip_pdf'),
+      path('break-in/', views.break_in, name='break_in'),
+    path('break-out/',views. break_out, name='break_out'),
+   
 ]
+
+    
+
 

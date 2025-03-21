@@ -1,7 +1,9 @@
 # attendance/forms.py
 from django import forms
 from django.contrib.auth.models import User
-from .models import UserProfile
+from .models import Payroll, Profile
+
+
 
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
@@ -25,6 +27,12 @@ class RegistrationForm(forms.ModelForm):
         if commit:
             user.save()
             # Create a UserProfile object
-            user_profile = UserProfile(user=user, employee_id=self.cleaned_data.get('employee_id'))
+            user_profile = Profile(user=user, employee_id=self.cleaned_data.get('employee_id'))
             user_profile.save()
         return user
+    
+class PayrollForm(forms.ModelForm):
+    class Meta:
+        model = Payroll
+        fields = ['employee', 'pay_period_start', 'pay_period_end', 'basic_salary', 'deduction', 'total_amount']
+        

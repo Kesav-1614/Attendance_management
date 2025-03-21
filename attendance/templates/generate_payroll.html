@@ -1,0 +1,127 @@
+{% block content %}
+<h2>Generate Payroll</h2>
+<form method="POST" id="payroll-form">
+    {% csrf_token %}
+    
+    <!-- Select Employee -->
+    <label>Employee:</label>
+    <select name="employee" id="employee-select" required>
+        <option value="">-- Select Employee --</option>
+        {% for employee in employees %}
+            <option value="{{ employee.id }}">{{ employee.username }}</option>
+        {% endfor %}
+    </select>
+    <br>
+
+    <!-- Display Employee Details -->
+    <label>Email:</label>
+    <input type="email" id="email" readonly>
+    <br>
+
+    <label>Designation:</label>
+    <input type="text" id="designation" readonly>
+    <br>
+
+    <!-- Working Days -->
+    <label>Pay Period Start:</label>
+    <input type="date" name="pay_period_start" id="start_date" required>
+    <br>
+
+    <label>Pay Period End:</label>
+    <input type="date" name="pay_period_end" id="end_date" required>
+    <br>
+
+    <label>Working Days:</label>
+    <input type="number" id="working_days" readonly>
+    <br>
+
+    <!-- Absent Days -->
+    <label>Absent Days:</label>
+    <input type="number" id="absent_days" value="0" min="0">
+    <br>
+
+    <!-- Basic Salary -->
+    <label>Basic Salary:</label>
+    <input type="number" name="basic_salary" id="basic_salary" step="0.01" required>
+    <br>
+
+    <!-- Deduction (Based on Absent Days) -->
+    <label>Deduction:</label>
+    <input type="number" name="deduction" id="deduction" step="0.01" readonly>
+    <br>
+
+    <!-- Total Amount -->
+    <label>Total Amount:</label>
+    <input type="number" name="total_amount" id="total_amount" step="0.01" readonly>
+    <br>
+
+    <button type="submit">Generate Payroll</button>
+</form>
+
+<!-- JavaScript for Dynamic Calculation -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const employeeSelect = document.getElementById('employee-select');
+    const emailField = document.getElementById('email');
+    const designationField = document.getElementById('designation');
+    const startDateField = document.getElementById('start_date');
+    const endDateField = document.getElementById('end_date');
+    const basicSalaryField = document.getElementById('basic_salary');
+    const absentDaysField = document.getElementById('absent_days');
+    const deductionField = document.getElementById('deduction');
+    const totalAmountField = document.getElementById('total_amount');
+    const workingDaysField = document.getElementById('working_days');
+
+    // Fetch employee details when selected
+    employeeSelect.addEventListener('change', async () => {
+        const employeeId = employeeSelect.value;
+        if (employeeId) {
+            const response = await fetch(`/payroll/fetch-details/${employeeId}/`);
+            if (response.ok) {
+                const data = await response.json();
+                emailField.value = data.email;
+                designationField.value = data.designation;
+            }
+        }
+    });
+
+    // Calculate working days based on start and end date
+    function calculateWorkingDays() {
+        const startDate = new Date(startDateField.value);
+        const endDate = new Date(endDateField.value);
+
+        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime()) && endDate >= startDate) {
+            const timeDiff = Math.abs(endDate - startDate);
+            const totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+            workingDaysField.value = totalDays;
+        }
+    }
+
+    startDateField.addEventListener('change', calculateWorkingDays);
+    endDateField.addEventListener('change', calculateWorkingDays);
+
+    // Deduction calculation based on absent days
+    absentDaysField.addEventListener('input', () => {
+        const basicSalary = parseFloat(basicSalaryField.value) || 0;
+        const workingDays = parseInt(workingDaysField.value) || 0;
+        const absentDays = parseInt(absentDaysField.value) || 0;
+
+        if (absentDays > workingDays) {
+            absentDaysField.value = workingDays; // Prevent excess absent days
+        }
+
+        const dailySalary = workingDays ? basicSalary / workingDays : 0;
+        const deduction = absentDays * dailySalary;
+        deductionField.value = deduction.toFixed(2);
+
+        // Calculate total amount
+        totalAmountField.value = (basicSalary - deduction).toFixed(2);
+    });
+
+    // Update deduction and total amount when basic salary is changed
+    basicSalaryField.addEventListener('input', () => {
+        absentDaysField.dispatchEvent(new Event('input'));
+    });
+});
+</script>
+{% endblock %}
