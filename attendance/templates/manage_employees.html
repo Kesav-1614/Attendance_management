@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Employees</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+        }
+        
+        body { 
+            display: flex; height: 100vh; 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white; overflow: hidden;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            overflow-x: auto;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        th {
+            background-color: #444;
+            color: white;
+        }
+        .btn {
+            padding: 12px 15px;
+            color: white;
+            background: #ff7eb3;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            flex: 1;
+            margin: 0 5px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: #ff4e8b; /* Same hover effect */
+        }
+
+        img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        @media (max-width: 600px) {
+            th, td {
+                font-size: 12px;
+                padding: 6px;
+            }
+            img {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Manage Employees</h2>
+    <div class="container">
+        <table>
+            <tr>
+                <th>Profile</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Email</th>
+            </tr>
+            {% for employee in employees %}
+            <tr>
+                <td><img src="{{ employee.profile_picture }}" alt="Profile Picture"></td>
+                <td>{{ employee.id }}</td>
+                <td>{{ employee.name }}</td>
+                <td>{{ employee.designation }}</td>
+                <td>{{ employee.email }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div><br><br>
+    <div class="buttons">
+        <a href="{% url 'admin_dashboard' %}" class="btn"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="{% url 'logout' %}" class="btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+</body>
+</html>

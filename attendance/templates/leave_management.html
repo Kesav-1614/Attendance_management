@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Leave Requests</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+        }
+
+        body { 
+            display: flex; height: 100vh; 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white; overflow: hidden;
+        }
+        
+        .container {
+            display: flex; flex-grow: 1; 
+            justify-content: space-between; 
+            padding: 10px;
+            gap: 20px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+        }
+
+        .sidebar h2 {
+            font-size: 22px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            color: #ff7eb3;
+            text-align: center;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            padding: 10px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s ease-in-out;
+            border-radius: 8px;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            background-color: #ff4c4c;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .logout-btn:hover {
+            background-color: #ff1a1a;
+            transform: scale(1.05);
+        }
+
+        /* Main Content */
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        .card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .card table, th, td {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-approve, .btn-reject {
+            padding: 5px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-right: 5px;
+        }
+
+        .btn-approve {
+            background-color: green;
+            color: white;
+        }
+
+        .btn {
+            padding: 12px 15px;
+            color: white;
+            background: #ff7eb3;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            flex: 1;
+            margin: 0 5px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: #ff4e8b; /* Same hover effect */
+        }
+
+        .btn-reject {
+            background-color: red;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .container { flex-direction: column; align-items: center; }
+            .sidebar { width: 100%; border-radius: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="card">
+                <h3>Manage Leave Requests</h3>
+                <table>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    {% for leave in leave_requests %}
+                    <tr>
+                        <td>{{ leave.user.username }}</td>
+                        <td>{{ leave.start_date }}</td>
+                        <td>{{ leave.end_date }}</td>
+                        <td>{{ leave.reason }}</td>
+                        <td>{{ leave.status }}</td>
+                        <td>
+                            {% if leave.status == "Pending" %}
+                                <a href="{% url 'approve_leave' leave.id %}" class="btn-approve">Approve</a>
+                                <a href="{% url 'reject_leave' leave.id %}" class="btn-reject">Reject</a>
+                            {% else %}
+                                {{ leave.status }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                
+            </div><br><br>
+            <div class="buttons">
+                <a href="{% url 'admin_dashboard' %}" class="btn"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="{% url 'logout' %}" class="btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+        
+    </div>
+    
+    </div>
+</body>
+</html>

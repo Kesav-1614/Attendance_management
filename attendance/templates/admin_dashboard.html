@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+        }
+
+        body { 
+            display: flex; height: 100vh; 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white; overflow: hidden;
+        }
+        
+        .container {
+            display: flex; flex-grow: 1; 
+            justify-content: space-between; 
+            padding: 10px;
+            gap: 20px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+        }
+
+        .sidebar h2 {
+            font-size: 22px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            color: #ff7eb3;
+            text-align: center;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            padding: 10px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s ease-in-out;
+            border-radius: 8px;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            background-color: #ff4c4c;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .logout-btn:hover {
+            background-color: #ff1a1a;
+            transform: scale(1.05);
+        }
+
+        /* Main Content */
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        .card p {
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .container { flex-direction: column; align-items: center; }
+            .sidebar { width: 100%; border-radius: 10px; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <a href="{% url 'admin_profile' %}"><i class="fas fa-user"></i> Profile</a>
+            <a href="{% url 'manage_employees' %}"><i class="fas fa-users"></i> Manage Employees</a>
+            <a href="{% url 'view_attendance' %}"><i class="fas fa-calendar-check"></i> View Attendance</a>
+            <a href="{% url 'leave_management' %}"><i class="fas fa-envelope-open-text"></i> Manage Leave Requests</a>
+            <a href="{% url 'select_employee' %}"> <i class="fas fa-file-download"></i> Download Attendance Report</a>
+            <a href="{% url 'generate_payroll' %}"><i class="fas fa-file-invoice"></i> Generate Payroll</a>
+            <a href="{% url 'payroll_list' %}"><i class="fas fa-list"></i> Payroll List</a>
+            <a href="{% url 'logout' %}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="card">
+                <h3>Welcome, Admin!</h3>
+                
+            </div>
+        </div>
+    </div>
+</body>
+</html>

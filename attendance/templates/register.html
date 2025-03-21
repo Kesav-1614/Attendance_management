@@ -78,18 +78,37 @@
 <body>
     <div class="register-container">
         <h2>Create Account</h2>
+
+
         <form method="POST" id="registrationForm">
             {% csrf_token %}
             <input type="text" name="username" id="username" placeholder="Username" required>
             <input type="email" name="email" id="email" placeholder="Email" required>
             <input type="password" name="password" id="password" placeholder="Password" required>
             <input type="text" name="employee_id" id="employee_id" placeholder="Employee ID" required>
-            <input type="date" name="date_of_birth" id="date_of_birth" required>
+            <input type="text" name="date_of_birth" id="date_of_birth" placeholder="Date of Birth" required>
             <input type="text" name="phone_number" id="phone_number" placeholder="Phone Number">
             <input type="text" name="address" id="address" placeholder="Address">
             <input type="text" name="designation" id="designation" placeholder="Designation">
             <button type="submit" class="btn">Register</button>
         </form>
     </div>
+    <script>
+        const dateOfBirth = document.getElementById('date_of_birth');
+    
+        dateOfBirth.addEventListener('focus', () => {
+            dateOfBirth.type = 'date';
+            dateOfBirth.showPicker(); // Show calendar on focus
+            dateOfBirth.max = new Date().toISOString().split('T')[0]; // Restrict future dates
+        });
+    
+        dateOfBirth.addEventListener('blur', () => {
+            if (!dateOfBirth.value) {
+                dateOfBirth.type = 'text';
+                dateOfBirth.placeholder = 'Date of Birth';
+            }
+        });
+    </script>
+    
 </body>
 </html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Employee</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex; height: 100vh;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; overflow: hidden;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #ff7eb3;
+            font-size: 22px;
+        }
+
+        .employee-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .employee-list a {
+            display: block;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            transition: 0.3s;
+            font-size: 16px;
+        }
+
+        .employee-list a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 15px;
+            color: white;
+            background: #ff7eb3;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            flex: 1;
+            margin: 0 5px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: #ff4e8b; /* Same hover effect */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Select Employee to Download Attendance</h2>
+        <ul class="employee-list">
+            {% for employee in employees %}
+                <li><a href="{% url 'download_employee_attendance' employee.employee_id %}">Download Attendance Report for {{ employee.username }}</a></li>
+            {% endfor %}
+        </ul>
+        <div class="buttons">
+            <a href="{% url 'admin_dashboard' %}" class="btn"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{% url 'logout' %}" class="btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+   
+</div>
+</body>
+</html>

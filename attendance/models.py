@@ -2,7 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.timezone import now
-from datetime import timedelta
+from datetime import timedelta, timezone
 
 class EmployeeDetails(models.Model):
     username = models.CharField(max_length=150, unique=True)
@@ -19,22 +19,42 @@ class EmployeeDetails(models.Model):
     
 class Attendance(models.Model):
     user = models.ForeignKey("EmployeeDetails", on_delete=models.CASCADE)
-    username = models.CharField(max_length=150, unique=True)
+    username = models.CharField(max_length=150, editable=False)
     date = models.DateField(default=now)
     check_in = models.DateTimeField(null=True, blank=True)
     check_out = models.DateTimeField(null=True, blank=True)
-    working_hours = models.DurationField(null=True, blank=True)  # Correct field type
+    working_hours = models.IntegerField(null=True, blank=True)  # Store as seconds
 
     def calculate_working_hours(self):
-        """Calculate working hours and store it as timedelta"""
+        """Calculate working hours and store as seconds (int)."""
         if self.check_in and self.check_out:
-            self.working_hours = self.check_out - self.check_in  # Ensure timedelta
+            delta = self.check_out - self.check_in  # timedelta
+            self.working_hours = int(delta.total_seconds())  # ✅ Convert timedelta to seconds
         else:
-            self.working_hours = None  # If no check-out, working hours is null
+            self.working_hours = None  # Reset if missing data
         self.save()
 
     def __str__(self):
-        return f"{self.user.username} - {self.date} ({self.working_hours})"
+        if self.working_hours is not None:
+            hours = self.working_hours // 3600
+            minutes = (self.working_hours % 3600) // 60
+            return f"{self.username} - {self.date} ({hours}h {minutes}m)"
+        return f"{self.username} - {self.date} (-)"
+    
+
+class Break(models.Model):
+    attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE)
+    break_in = models.DateTimeField(null=True, blank=True)
+    break_out = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.attendance.username} - {self.break_in} to {self.break_out}"    
+    
+class Role(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class LeaveApplication(models.Model):
     LEAVE_TYPES = [
@@ -50,8 +70,10 @@ class LeaveApplication(models.Model):
         ('Rejected', 'Rejected'),
     ]
 
-    user = models.ForeignKey("EmployeeDetails", on_delete=models.CASCADE)  # Referencing EmployeeDetails
+    user = models.ForeignKey("EmployeeDetails", on_delete=models.CASCADE)
+    username = models.CharField(max_length=150)
     leave_type = models.CharField(max_length=50, choices=LEAVE_TYPES)
+    role_type = models.TextField()  # ✅ Change to TextField to store multiple roles as CSV
     start_date = models.DateField()
     end_date = models.DateField()
     reason = models.TextField()
@@ -67,3 +89,15 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile of {self.employee.username}"
+    
+class Payroll(models.Model):
+    employee = models.ForeignKey('EmployeeDetails', on_delete=models.CASCADE)
+    pay_period_start = models.DateField()
+    pay_period_end = models.DateField()
+    basic_salary = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    deduction = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    payment_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.employee.username} - {self.pay_period_start} to {self.pay_period_end}"
